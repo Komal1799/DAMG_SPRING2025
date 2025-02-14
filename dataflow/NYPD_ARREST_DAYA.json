@@ -1,0 +1,89 @@
+{
+	"name": "NYPD_ARREST_DAYA",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText2",
+						"type": "DatasetReference"
+					},
+					"name": "NYPDARREST"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ARREST_KEY as integer,",
+				"          ARREST_DATE as string,",
+				"          PD_CD as short,",
+				"          PD_DESC as string,",
+				"          KY_CD as short,",
+				"          OFNS_DESC as string,",
+				"          LAW_CODE as string,",
+				"          LAW_CAT_CD as string,",
+				"          ARREST_BORO as string,",
+				"          ARREST_PRECINCT as short,",
+				"          JURISDICTION_CODE as short,",
+				"          AGE_GROUP as string,",
+				"          PERP_SEX as string,",
+				"          PERP_RACE as string,",
+				"          X_COORD_CD as integer,",
+				"          Y_COORD_CD as integer,",
+				"          Latitude as double,",
+				"          Longitude as double,",
+				"          {New Georeferenced Column} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> NYPDARREST",
+				"NYPDARREST derive(PD_CD = iif(isNull(PD_CD),0,toInteger(PD_CD)),",
+				"          KY_CD = iif(isNull(KY_CD),0,toInteger(KY_CD)),",
+				"          PD_DESC = iif(isNull(PD_DESC) || PD_DESC == '(null)', 'UNKNOWN', PD_DESC),",
+				"          AGE_GROUP = iif(isNull(AGE_GROUP), 'UNKNOWN', AGE_GROUP),",
+				"          LAW_CODE = iif(isNull(LAW_CODE), 'UNKNOWN', trim(LAW_CODE)),",
+				"          ARREST_BORO = iif(in(['M', 'B', 'K', 'Q', 'S'], ARREST_BORO), ARREST_BORO, 'UNKNOWN'),",
+				"          ARREST_PRECINCT = iif(isNull(ARREST_PRECINCT), 0, toInteger(ARREST_PRECINCT)),",
+				"          JURISDICTION_CODE = iif(isNull(JURISDICTION_CODE), 0, toInteger(JURISDICTION_CODE)),",
+				"          PERP_SEX = iif(isNull(PERP_SEX), 'UNKNOWN', upper(trim(PERP_SEX))),",
+				"          PERP_RACE = iif(isNull(PERP_RACE), 'UNKNOWN', upper(trim(PERP_RACE))),",
+				"          ARREST_KEY = iif(isNull(ARREST_KEY), 0, toInteger(ARREST_KEY)),",
+				"          LAW_CAT_CD = iif(in(['F', 'M', 'V'], LAW_CAT_CD), LAW_CAT_CD, 'UNKNOWN'),",
+				"          ARREST_DATE = toDate(ARREST_DATE, 'MM/dd/yyyy'),",
+				"          OFNS_DESC = iif(isNull(OFNS_DESC) || OFNS_DESC == '(null)', 'UNKNOWN', OFNS_DESC)) ~> derivedColumn1",
+				"derivedColumn1 select(mapColumn(",
+				"          ARREST_KEY,",
+				"          ARREST_DATE,",
+				"          PD_CD,",
+				"          PD_DESC,",
+				"          KY_CD,",
+				"          OFNS_DESC = PD_DESC,",
+				"          LAW_CODE,",
+				"          LAW_CAT_CD,",
+				"          ARREST_BORO,",
+				"          ARREST_PRECINCT,",
+				"          JURISDICTION_CODE,",
+				"          AGE_GROUP,",
+				"          PERP_SEX,",
+				"          PERP_RACE,",
+				"          X_COORD_CD,",
+				"          Y_COORD_CD,",
+				"          Latitude,",
+				"          Longitude,",
+				"          {New Georeferenced Column}",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1"
+			]
+		}
+	}
+}
