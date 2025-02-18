@@ -1,0 +1,44 @@
+{
+	"name": "seattle_pet_license",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					},
+					"name": "readTSVfile"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          License_Issue_Date as string,",
+				"          License_Number as string,",
+				"          Animals_Name as string,",
+				"          Species as string,",
+				"          Primary_Breed as string,",
+				"          Secondary_Breed as string,",
+				"          ZIP_Code as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> readTSVfile",
+				"readTSVfile derive(LIC_ISSUE_DATE = toDate(License_Issue_Date, 'MMMM dd yyyy', 'en-US'),",
+				"          Secondary_Breed = iifNull(Secondary_Breed, 'Unknown'),",
+				"          ZIP_Code = lpad(toString(ZIP_Code),5,'0'),",
+				"          Species = upper(Species),",
+				"          License_Number = toInteger(translate(License_Number, 'S', '')),",
+				"          Animals_Name = translate(Animals_Name, '()[]', ''),",
+				"          Load_Dt = currentDate()) ~> derivedColumn1"
+			]
+		}
+	}
+}

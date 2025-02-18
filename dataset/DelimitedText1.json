@@ -5,6 +5,16 @@
 			"referenceName": "AzureDataLakeStorage_LS",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"FileName": {
+				"type": "string",
+				"defaultValue": "text.tsv"
+			},
+			"FileDelimiter": {
+				"type": "string",
+				"defaultValue": "l"
+			}
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
