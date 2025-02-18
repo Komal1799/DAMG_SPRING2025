@@ -21,7 +21,7 @@
 			"location": {
 				"type": "AzureBlobFSLocation",
 				"fileName": "Seattle_Pet_Licenses_new 1.tsv",
-				"fileSystem": "silver"
+				"fileSystem": "bronze"
 			},
 			"columnDelimiter": "\t",
 			"escapeChar": "\\",
