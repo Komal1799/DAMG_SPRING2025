@@ -26,6 +26,14 @@
 								"FileName": "text.tsv",
 								"FileDelimiter": "l"
 							}
+						},
+						"linkedServiceParameters": {
+							"readTSVfile": {
+								"schemaLinkedService": {
+									"FileName": "text.tsv",
+									"FileDelimiter": "l"
+								}
+							}
 						}
 					},
 					"compute": {
