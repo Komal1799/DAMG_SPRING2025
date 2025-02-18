@@ -48,7 +48,11 @@
 				"inputs": [
 					{
 						"referenceName": "DelimitedText1",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"FileName": "text.tsv",
+							"FileDelimiter": "l"
+						}
 					}
 				],
 				"outputs": [
