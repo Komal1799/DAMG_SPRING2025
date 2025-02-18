@@ -1,0 +1,41 @@
+{
+	"name": "DATA_CLEANING",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "seattle_pet_license",
+						"type": "DataFlowReference",
+						"parameters": {
+							"Job_Id": "\"10\""
+						},
+						"datasetParameters": {
+							"readTSVfile": {
+								"FileName": "text.tsv",
+								"FileDelimiter": "l"
+							}
+						}
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse"
+				}
+			}
+		],
+		"annotations": []
+	}
+}
