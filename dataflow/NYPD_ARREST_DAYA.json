@@ -12,7 +12,15 @@
 					"name": "NYPDARREST"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "NYPD_SnowflakeTable",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "derivedColumn1"
@@ -62,11 +70,11 @@
 				"          OFNS_DESC = iif(isNull(OFNS_DESC) || OFNS_DESC == '(null)', 'UNKNOWN', OFNS_DESC)) ~> derivedColumn1",
 				"derivedColumn1 select(mapColumn(",
 				"          ARREST_KEY,",
-				"          ARREST_DATE,",
+				"          ARREST_DATE_NEW = ARREST_DATE,",
 				"          PD_CD,",
 				"          PD_DESC,",
 				"          KY_CD,",
-				"          OFNS_DESC = PD_DESC,",
+				"          OFNS_DESC,",
 				"          LAW_CODE,",
 				"          LAW_CAT_CD,",
 				"          ARREST_BORO,",
@@ -77,12 +85,42 @@
 				"          PERP_RACE,",
 				"          X_COORD_CD,",
 				"          Y_COORD_CD,",
-				"          Latitude,",
-				"          Longitude,",
-				"          {New Georeferenced Column}",
+				"          LATITUDE = Latitude,",
+				"          LONGITUDE = Longitude,",
+				"          NEWGEOREFERENCEDCOLUMN = {New Georeferenced Column}",
 				"     ),",
-				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> select1"
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          ARREST_KEY,",
+				"          ARREST_DATE_NEW,",
+				"          PD_CD,",
+				"          PD_DESC,",
+				"          KY_CD,",
+				"          OFNS_DESC,",
+				"          LAW_CODE,",
+				"          LAW_CAT_CD,",
+				"          ARREST_BORO,",
+				"          ARREST_PRECINCT,",
+				"          JURISDICTION_CODE,",
+				"          AGE_GROUP,",
+				"          PERP_SEX,",
+				"          PERP_RACE,",
+				"          X_COORD_CD,",
+				"          Y_COORD_CD,",
+				"          LATITUDE,",
+				"          LONGITUDE,",
+				"          NEWGEOREFERENCEDCOLUMN",
+				"     )) ~> sink1"
 			]
 		}
 	}
