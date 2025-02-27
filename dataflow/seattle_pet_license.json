@@ -50,7 +50,7 @@
 				"          Secondary_Breed = iifNull(Secondary_Breed, 'Unknown'),",
 				"          ZIP_Code = lpad(toString(ZIP_Code),5,'0'),",
 				"          Species = upper(Species),",
-				"          Current_date =  currentDate(),",
+				"          Current_date = currentDate(),",
 				"          JOB_ID = $Job_Id,",
 				"          Animal_Name = translate(Animals_Name, '()[]', '')) ~> TransposeColumns",
 				"TransposeColumns select(mapColumn(",
