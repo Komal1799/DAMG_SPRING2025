@@ -96,7 +96,7 @@
 				"          PRIMARY_BREED,",
 				"          SECONDARY_BREED,",
 				"          SPECIES,",
-				"          DI_LOAD_DT = DI_LOAD_DATE,",
+				"          DI_LOAD_DATE,",
 				"          DI_JOB_ID",
 				"     )) ~> sinkBreedDim"
 			]
