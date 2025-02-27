@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable4",
+						"referenceName": "SeattlecleanedSF",
 						"type": "DatasetReference"
 					},
 					"name": "SinkSnowFlake"
