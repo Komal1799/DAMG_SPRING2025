@@ -1,5 +1,5 @@
 {
-	"name": "dataflow1",
+	"name": "FACT_DF",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -31,9 +31,24 @@
 						"type": "DatasetReference"
 					},
 					"name": "sourceDateDim"
+				},
+				{
+					"dataset": {
+						"referenceName": "pet_lic_fact",
+						"type": "DatasetReference"
+					},
+					"name": "FactMaxID"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "pet_lic_fact",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "joinLocationDim"
@@ -43,6 +58,18 @@
 				},
 				{
 					"name": "join1"
+				},
+				{
+					"name": "join2"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "derivedColumn1"
 				}
 			],
 			"scriptLines": [
@@ -82,9 +109,30 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> sourceBreedDim",
-				"source(allowSchemaDrift: true,",
+				"source(output(",
+				"          DT as date,",
+				"          ABRV_DAY_NAME as string,",
+				"          MONTH_NAME as string,",
+				"          START_DAY_OF_MONTH as date,",
+				"          END_DAY_OF_MONTH as date,",
+				"          QUARTER_NUM as decimal(2,0),",
+				"          DAY_OF_WEEK as decimal(2,0),",
+				"          IS_WEEKEND as decimal(1,0),",
+				"          YEAR_NUM as decimal(4,0),",
+				"          MONTH_NUM as decimal(2,0),",
+				"          DAY_NUM as decimal(2,0),",
+				"          DATE_DIM_SK as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> sourceDateDim",
+				"source(output(",
+				"          MAX_PET_LIC_SK as decimal(10,0)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     query: 'Select NVL(MAX(PET_LIC_SK),0) as MAX_PET_LIC_SK from DAMGSPRING25_DB_SCHEMA.PET_LIC_FACT',",
+				"     format: 'query') ~> FactMaxID",
 				"sourceStage, sourceLocationDim join(sourceStage@ZIP_CODE == sourceLocationDim@ZIP_CODE,",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
@@ -97,11 +145,53 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     broadcast: 'auto')~> joinBreedDim",
-				"joinBreedDim, sourceDateDim join(LICENSE_ISSUE_DATE == ERROR_FUNCTION(''),",
+				"joinBreedDim, sourceDateDim join(LICENSE_ISSUE_DATE == toString(DT),",
 				"     joinType:'inner',",
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
-				"     broadcast: 'auto')~> join1"
+				"     broadcast: 'auto')~> join1",
+				"join1, FactMaxID join(1==1,",
+				"     joinType:'cross',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join2",
+				"join2 aggregate(groupBy(BREED_SK,",
+				"          LOCATION_SK,",
+				"          DT,",
+				"          DATE_DIM_SK),",
+				"     license_issue = count(LICENSE_ISSUE_DATE)) ~> aggregate1",
+				"aggregate1 keyGenerate(output(RowNum as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"surrogateKey1 derive(pet_lic_sk = RowNum,",
+				"          DI_LOAD_DATE = currentTimestamp(),",
+				"          DI_JOB_ID = uuid()) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          PET_LIC_SK as string,",
+				"          DATE_SK as string,",
+				"          LOCATION_SK as string,",
+				"          BREED_SK as string,",
+				"          LIC_NUM as string,",
+				"          DI_JOB_ID as string,",
+				"          DI_LOAD_DATE as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          DATE_SK = DATE_DIM_SK,",
+				"          LOCATION_SK,",
+				"          BREED_SK,",
+				"          DI_JOB_ID,",
+				"          DI_LOAD_DATE,",
+				"          PET_LIC_SK = pet_lic_sk",
+				"     )) ~> sink1"
 			]
 		}
 	}
