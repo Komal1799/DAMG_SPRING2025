@@ -1,9 +1,9 @@
 {
-	"name": "PET_LIC_PIPELINE",
+	"name": "SeattleDimFacts",
 	"properties": {
 		"activities": [
 			{
-				"name": "Data flow1",
+				"name": "StageDataFlow",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
@@ -36,11 +36,11 @@
 				}
 			},
 			{
-				"name": "Data flow2",
+				"name": "LoadBreedDim",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Data flow1",
+						"activity": "StageDataFlow",
 						"dependencyConditions": [
 							"Completed"
 						]
@@ -67,11 +67,11 @@
 				}
 			},
 			{
-				"name": "Data flow3",
+				"name": "LoadLocationDim",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Data flow2",
+						"activity": "LoadBreedDim",
 						"dependencyConditions": [
 							"Completed"
 						]
@@ -101,11 +101,11 @@
 				}
 			},
 			{
-				"name": "Data flow4",
+				"name": "Load",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [
 					{
-						"activity": "Data flow3",
+						"activity": "LoadLocationDim",
 						"dependencyConditions": [
 							"Completed"
 						]
