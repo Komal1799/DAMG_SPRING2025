@@ -173,7 +173,6 @@
 				"          DATE_SK as string,",
 				"          LOCATION_SK as string,",
 				"          BREED_SK as string,",
-				"          LIC_NUM as string,",
 				"          DI_JOB_ID as string,",
 				"          DI_LOAD_DATE as string",
 				"     ),",
