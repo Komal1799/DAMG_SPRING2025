@@ -15,7 +15,7 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "SnowflakeTable7",
+						"referenceName": "NameBasicFlatten",
 						"type": "DatasetReference"
 					},
 					"name": "sink1"
