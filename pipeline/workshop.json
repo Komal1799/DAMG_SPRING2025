@@ -1,0 +1,188 @@
+{
+	"name": "workshop",
+	"properties": {
+		"activities": [
+			{
+				"name": "Data flow1",
+				"type": "ExecuteDataFlow",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "NameBasicDF",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Coarse"
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:30:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"additionalColumns": [
+							{
+								"name": "DI_JOB_ID",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "DI_LOAD_DATE",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "AzureBlobStorage",
+							"type": "LinkedServiceReference"
+						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "nconst",
+									"type": "String"
+								},
+								"sink": {
+									"name": "NCONST",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "primaryName",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRIMARYNAME",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "birthYear",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "BIRTHYEAR",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "deathYear",
+									"type": "Int32"
+								},
+								"sink": {
+									"name": "DEATHYEAR",
+									"type": "Int64"
+								}
+							},
+							{
+								"source": {
+									"name": "primaryProfession",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRIMARYPROFESSION",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "knownForTitles",
+									"type": "String"
+								},
+								"sink": {
+									"name": "KNOWNFORTITLES",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "DI_JOB_ID",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DI_JOB_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "DI_LOAD_DATE",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DI_LOAD_DATE",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "namebasicparquet",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SFNameBasic",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"annotations": []
+	}
+}
