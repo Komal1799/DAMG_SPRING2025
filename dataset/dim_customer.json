@@ -1,5 +1,5 @@
 {
-	"name": "SnowflakeTable7",
+	"name": "dim_customer",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "Snowflake",
