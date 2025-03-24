@@ -41,7 +41,8 @@
 				"source1 keyGenerate(output(customer_sk as long),",
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
-				"surrogateKey1 derive(DI_Created_Dt = currentDate()) ~> derivedColumn1",
+				"surrogateKey1 derive(DI_Created_Dt = currentDate(),",
+				"          pid = 'loaded') ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
@@ -52,11 +53,11 @@
 				"     format: 'table',",
 				"     stageInsert: true,",
 				"     mapColumn(",
+				"          customer_sk,",
 				"          customerid,",
 				"          CustomerName,",
-				"          billTo,",
-				"          customer_sk,",
-				"          DI_Created_Dt",
+				"          DI_Created_Dt,",
+				"          pid",
 				"     )) ~> sink1"
 			]
 		}
