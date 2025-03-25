@@ -43,13 +43,13 @@
 					"name": "split1"
 				},
 				{
-					"name": "derivedColumn1"
-				},
-				{
-					"name": "surrogateKey1"
-				},
-				{
 					"name": "derivedColumn2"
+				},
+				{
+					"name": "surrogateKey"
+				},
+				{
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
@@ -78,22 +78,21 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'table') ~> source2",
-				"source1, source2 lookup(customerid == CUSTOMER_ID,",
+				"surrogateKey, source2 lookup(customerid == CUSTOMER_ID,",
 				"     multiple: true,",
 				"     broadcast: 'auto')~> lookup1",
-				"lookup1 split(true(),",
-				"     isNull(CUSTOMER_ID),",
+				"lookup1 split(!isNull(CUSTOMER_SK),",
+				"     isNull(CUSTOMER_SK),",
 				"     disjoint: true) ~> split1@(MatchedRows, UnMatchedRows)",
-				"surrogateKey1 derive(PID = 'Loaded',",
-				"          DI_CREATED_DT = currentDate()) ~> derivedColumn1",
-				"split1@MatchedRows keyGenerate(output(SaleSK as long),",
-				"     startAt: 1L,",
-				"     stepValue: 1L) ~> surrogateKey1",
-				"split1@UnMatchedRows derive(CUSTOMER_SK = -1,",
-				"          CUSTOMER_NAME = 'UNKNOWN',",
+				"split1@UnMatchedRows derive(CUSTOMER_NAME = iifNull(CUSTOMER_NAME,'UNKNOWN'),",
 				"          DI_CREATED_DT = currentDate(),",
 				"          PID = 'Loaded') ~> derivedColumn2",
-				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"source1 keyGenerate(output(INVOICE_SK as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey",
+				"split1@MatchedRows derive(PID = 'Loaded',",
+				"          DI_CREATED_DT = currentDate()) ~> derivedColumn3",
+				"derivedColumn3 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
 				"     insertable:true,",
@@ -114,6 +113,13 @@
 				"     )) ~> sink1",
 				"derivedColumn2 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     input(",
+				"          CUSTOMER_SK as decimal(38,0),",
+				"          CUSTOMER_ID as decimal(38,0),",
+				"          CUSTOMER_NAME as string,",
+				"          DI_CREATED_DT as timestamp,",
+				"          PID as string",
+				"     ),",
 				"     deletable:false,",
 				"     insertable:true,",
 				"     updateable:false,",
@@ -122,8 +128,8 @@
 				"     format: 'table',",
 				"     stageInsert: true,",
 				"     mapColumn(",
-				"          CUSTOMER_SK,",
-				"          CUSTOMER_ID,",
+				"          CUSTOMER_SK = INVOICE_SK,",
+				"          CUSTOMER_ID = customerid,",
 				"          CUSTOMER_NAME,",
 				"          DI_CREATED_DT,",
 				"          PID",
