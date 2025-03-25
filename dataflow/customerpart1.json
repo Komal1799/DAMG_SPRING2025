@@ -53,10 +53,10 @@
 				"     format: 'table',",
 				"     stageInsert: true,",
 				"     mapColumn(",
-				"          customer_sk,",
-				"          customer_id = customerid,",
-				"          customer_name = CustomerName,",
-				"          pid,",
+				"          CUSTOMER_SK = customer_sk,",
+				"          CUSTOMER_ID = customerid,",
+				"          CUSTOMER_NAME = CustomerName,",
+				"          PID = pid,",
 				"          DI_Created_Dt",
 				"     )) ~> sink1"
 			]
