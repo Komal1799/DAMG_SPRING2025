@@ -1,0 +1,134 @@
+{
+	"name": "InferredLoad",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "salesdata",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "dim_customer",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "salesSF",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				},
+				{
+					"dataset": {
+						"referenceName": "dim_customer",
+						"type": "DatasetReference"
+					},
+					"name": "sink2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "surrogateKey1"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          invoiceId as integer,",
+				"          customerid as decimal(10,0),",
+				"          invoiceDate as date,",
+				"          ShipTo as string,",
+				"          ShipTo_City as string,",
+				"          ShipTo_Country as string,",
+				"          SalespersonPersonID as short,",
+				"          SalespersonName as string,",
+				"          total_product_cnt as short,",
+				"          Total as double",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source(output(",
+				"          CUSTOMER_SK as decimal(38,0),",
+				"          CUSTOMER_ID as decimal(38,0),",
+				"          CUSTOMER_NAME as string,",
+				"          DI_CREATED_DT as timestamp,",
+				"          PID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> source2",
+				"source1, source2 lookup(customerid == CUSTOMER_ID,",
+				"     multiple: true,",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1 split(true(),",
+				"     isNull(CUSTOMER_ID),",
+				"     disjoint: true) ~> split1@(MatchedRows, UnMatchedRows)",
+				"surrogateKey1 derive(PID = 'Loaded',",
+				"          DI_CREATED_DT = currentDate()) ~> derivedColumn1",
+				"split1@MatchedRows keyGenerate(output(SaleSK as long),",
+				"     startAt: 1L,",
+				"     stepValue: 1L) ~> surrogateKey1",
+				"split1@UnMatchedRows derive(CUSTOMER_SK = -1,",
+				"          CUSTOMER_NAME = 'UNKNOWN',",
+				"          DI_CREATED_DT = currentDate(),",
+				"          PID = 'Loaded') ~> derivedColumn2",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          INVOICE_SK = SaleSK,",
+				"          INVOICE_ID = invoiceId,",
+				"          CUSTOMER_ID = customerid,",
+				"          INVOICE_DT = invoiceDate,",
+				"          TOTAL_PRODUCT_CNT = total_product_cnt,",
+				"          TOTAL_PRODUCT_COST = Total,",
+				"          DI_CREATED_DT,",
+				"          PID",
+				"     )) ~> sink1",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     truncate:true,",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          CUSTOMER_SK,",
+				"          CUSTOMER_ID,",
+				"          CUSTOMER_NAME,",
+				"          DI_CREATED_DT,",
+				"          PID",
+				"     )) ~> sink2"
+			]
+		}
+	}
+}
