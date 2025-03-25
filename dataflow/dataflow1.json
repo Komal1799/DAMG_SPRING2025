@@ -31,7 +31,7 @@
 			],
 			"scriptLines": [
 				"source(output(",
-				"          customerid as short,",
+				"          customerid as integer,",
 				"          CustomerName as string,",
 				"          billTo as string",
 				"     ),",
@@ -42,7 +42,8 @@
 				"     startAt: 1L,",
 				"     stepValue: 1L) ~> surrogateKey1",
 				"surrogateKey1 derive(DI_Created_Dt = currentDate(),",
-				"          pid = 'loaded') ~> derivedColumn1",
+				"          pid = 'loaded',",
+				"          customer_sk = toInteger(customer_sk)) ~> derivedColumn1",
 				"derivedColumn1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     deletable:false,",
