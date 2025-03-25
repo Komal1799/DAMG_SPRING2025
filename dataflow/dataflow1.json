@@ -1,0 +1,94 @@
+{
+	"name": "dataflow1",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "CustomerPart2",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "dim_customer",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "dim_customer",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "join1"
+				},
+				{
+					"name": "filter1"
+				},
+				{
+					"name": "alterRow1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          customerid as short,",
+				"          CustomerName as string,",
+				"          billTo as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source1",
+				"source(output(",
+				"          CUSTOMER_SK as decimal(38,0),",
+				"          CUSTOMER_ID as decimal(38,0),",
+				"          CUSTOMER_NAME as string,",
+				"          DI_CREATED_DT as timestamp,",
+				"          PID as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'table') ~> source2",
+				"source1, source2 join(customerid == CUSTOMER_ID,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 filter(CUSTOMER_NAME == 'UNKNOWN') ~> filter1",
+				"filter1 alterRow(updateIf(CUSTOMER_NAME =='UNKNOWN')) ~> alterRow1",
+				"alterRow1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          CUSTOMER_SK as decimal(38,0),",
+				"          CUSTOMER_ID as decimal(38,0),",
+				"          CUSTOMER_NAME as string,",
+				"          DI_CREATED_DT as timestamp,",
+				"          PID as string",
+				"     ),",
+				"     deletable:true,",
+				"     insertable:true,",
+				"     updateable:true,",
+				"     upsertable:true,",
+				"     keys:['CUSTOMER_NAME'],",
+				"     format: 'table',",
+				"     stageInsert: true,",
+				"     mapColumn(",
+				"          CUSTOMER_SK,",
+				"          CUSTOMER_ID = customerid,",
+				"          CUSTOMER_NAME = CustomerName,",
+				"          DI_CREATED_DT,",
+				"          PID",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
