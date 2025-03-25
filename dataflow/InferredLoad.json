@@ -102,7 +102,7 @@
 				"     format: 'table',",
 				"     stageInsert: true,",
 				"     mapColumn(",
-				"          INVOICE_SK = SaleSK,",
+				"          INVOICE_SK,",
 				"          INVOICE_ID = invoiceId,",
 				"          CUSTOMER_ID = customerid,",
 				"          INVOICE_DT = invoiceDate,",
