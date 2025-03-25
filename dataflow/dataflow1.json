@@ -54,8 +54,8 @@
 				"     stageInsert: true,",
 				"     mapColumn(",
 				"          customer_sk,",
-				"          customerid,",
-				"          CustomerName,",
+				"          customer_id = customerid,",
+				"          customer_name = CustomerName,",
 				"          DI_Created_Dt,",
 				"          pid",
 				"     )) ~> sink1"
