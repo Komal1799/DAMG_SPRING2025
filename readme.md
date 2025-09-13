@@ -5,9 +5,12 @@ NYPD ARREST DATA This project focuses on Arrest data from New York, as well as i
 2]Data Cleaning This stage involves data cleaning processes alongside Data Warehouse Design. A specific ETL process is implemented to remove noisy data, such as locations belonging to areas other than New York.This process included removal of leading and trailing whitespaces, and nulls.The blanks were replaced with NA and numeric values with 0.For missing or null latitude and longitude values, an imputation tool was used. Missing geographic coordinates were replaced with the average values for latitude and longitude based on other entries, ensuring minimal disruption to the spatial integrity of the data. This is achieved by writing an ETL process to filter out irrelevant data. The cleaned data is then staged again, serving as the input for subsequent ETL processes. Given that the project serves as an introduction to BI concepts, dimensions are kept as Type 0 and facts are transactional, with the granularity defined at the transaction level.
 
 Physical Model image
+<img width="1231" height="774" alt="image" src="https://github.com/user-attachments/assets/48a83ea2-365d-4204-87a5-a43ceb18f761" />
+
 
 3]ETL Process ETL processes for all dimensions are developed using Azure Data Factory and executed in this phase. The process successfully loads 100% of the source data into respective facts and dimensions. Details of data consistency checks can be found in the attached PDF document.
 
 4]Visualizations Visualizations are created from the Data Warehouse schema using Tableau and Power BI. All visualizations are cross-verified using SQL commands. (attached as sql queries for validation.SQL file in the main repository)
 
-image image
+<img width="1230" height="670" alt="image" src="https://github.com/user-attachments/assets/b5e9c312-6e89-461d-bb2b-abf3f653a330" />
+<img width="1206" height="687" alt="image" src="https://github.com/user-attachments/assets/b2327bfa-dce4-47c3-8511-38317540203f" />
